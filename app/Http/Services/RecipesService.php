@@ -1,0 +1,89 @@
+<?php
+
+namespace App\Http\Services;
+
+use App\Models\Recipe;
+use Storage;
+use Illuminate\Support\Str;
+// Removed incorrect import of now() as Laravel provides a global helper function for this.
+
+class RecipesService
+{
+  
+    public function fetchRecipes()
+    {
+        $response = [];
+        try {
+            $recipes = Recipe::with(['images', 'category', 'cuisine'])->get();
+            $response['message'] = "Recipes Fetched Successfully";
+            $response['status'] = true;
+            $response['statusCode'] = 200;
+            $response['data'] = $recipes;
+        } catch (\Exception $e) {
+            $response['message'] = $e;
+            $response['status'] = false;
+            $response['statusCode'] = 500;
+        }
+
+
+        return $response;
+    }
+    public function storeRecipes($data)
+    {
+        $response = [];
+        try{
+            $slug = Str::slug($data->title, '-');
+            $data->merge(['slug' => $slug]);
+            $recipe = Recipe::create($data->except('image'));
+            $ingredients = json_decode($data->ingredients, true);
+            $recipe->ingredients()->attach($ingredients);
+            
+            if ($data->hasFile('image')) {
+                $image = $data->file('image');
+                $extension = $image->getClientOriginalExtension();
+                $fileName = now()->format('YmdHis').".".$extension;
+                $fileSize = $image->getSize();
+                $fileType = $image->getClientMimeType();
+                $filePath = "uploads/images/{$fileName}";
+                Storage::disk('public')->put($filePath, $image);
+                $recipe->images()->create([
+                    'parent_id' => $recipe->id,
+                    'parent_type' => 'App\Models\Recipe',
+                    "image_type" => $fileType,
+                    "path" => "/storage/{$filePath}",
+                    'size' => $fileSize
+                ]);
+            }
+            $response['message'] = "Recipes Created Successfully";
+            $response['status'] = true;
+            $response['statusCode'] = 201;
+            $response['data'] = $recipe;           
+        } catch (\Exception $e) {
+            $response['message'] = $e->getMessage();
+            $response['status'] = false;
+            $response['statusCode'] = 500;
+        }
+        return $response;
+    }
+
+    public function fetchSingleRecipe($id){
+        $response=[];
+        try {
+            $cuisine = Recipe::with(['images', 'category', 'cuisine'])->findOrFail($id);
+            $response['message'] = "Racipe Get Successfully";
+            $response['status'] = true;
+            $response['statusCode'] = 200;
+            $response['data'] = $cuisine;
+        } catch (\Exception $e) {
+            $response['message'] = $e->getMessage();
+            $response['status'] = false;
+            $response['status'] = 500;
+        }
+        return $response;
+    }
+
+
+}
+
+
+?>
