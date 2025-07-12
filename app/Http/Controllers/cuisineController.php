@@ -81,7 +81,7 @@ class cuisineController extends Controller
     public function update(Request $request, string $id)
     {
 
-        return $request;
+        return $id;
         
     }
 

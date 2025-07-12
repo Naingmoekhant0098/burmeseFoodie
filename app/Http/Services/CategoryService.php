@@ -2,6 +2,7 @@
 namespace App\Http\Services;
 
 use App\Models\Category;
+use Intervention\Image\Facades\Image;
 use Storage;
 class CategoryService
 {
@@ -9,7 +10,9 @@ class CategoryService
     { {
             $response = [];
             try {
-                $categories = Category::with('image')->get();
+               
+                $categories = Category::with('image')
+                ->get();
                 $response['message'] = "Catgories Fetched Successfully";
                 $response['status'] = true;
                 $response['statusCode'] = 200;
@@ -36,8 +39,12 @@ class CategoryService
                 $fileName = now()->format('YmdHis') . "." . $extension;
                 $fileSize = $image->getSize();
                 $fileType = $image->getClientMimeType();
+                
+           
                 $filePath = "uploads/images/{$fileName}";
-                Storage::disk('public')->put($filePath, $image);
+                Storage::disk('public')->put($filePath,file_get_contents($image));
+               
+        
                 $category->image()->create([
                     'parent_id' => $category->id,
                     'parent_type' => 'App\Models\Category',

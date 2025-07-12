@@ -36,7 +36,7 @@ class IngredientService
                 $fileSize = $image->getSize();
                 $fileType = $image->getClientMimeType();
                 $filePath = "uploads/images/{$fileName}";
-                Storage::disk('public')->put($filePath, $image);
+                Storage::disk('public')->put($filePath, file_get_contents($image));
                 $ingredient->image()->create([
                     'parent_id' => $ingredient->id,
                     'parent_type' => 'App\Models\Ingredient',

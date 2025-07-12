@@ -17,9 +17,21 @@ class recipesController extends Controller
         $this->recipesService = $recipesService;
         $this->apiResponse = $apiResponse;
     }
-    public function index()
+    public function index(Request $request)
     {
-        $response = $this->recipesService->fetchRecipes();
+        $response = $this->recipesService->fetchRecipes($request);
+        if ($response['status'] == false) {
+            return $this->apiResponse->errorResponse($response['message'], $response['statusCode']);
+        } else {
+
+            $data = recipesResource::collection($response['data']);
+            return $this->apiResponse->successResponse($data, $response['message'], $response['statusCode']);
+
+        }
+    }
+    public function popular(Request $request)
+    {
+        $response = $this->recipesService->popularRecipes($request);
         if ($response['status'] == false) {
             return $this->apiResponse->errorResponse($response['message'], $response['statusCode']);
         } else {
@@ -46,6 +58,8 @@ class recipesController extends Controller
 
 
         $response = $this->recipesService->storeRecipes($request);
+
+
 
         if ($response['statusCode'] == false) {
 

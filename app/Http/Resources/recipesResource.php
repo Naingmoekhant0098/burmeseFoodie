@@ -23,16 +23,17 @@ class recipesResource extends JsonResource
             'cuisine_id' => (int) $this->cuisine_id, 
             'images' => $this->images ? imageResource::collection($this->images) : null,  
             'description' => (string) $this->description,
-            'nutrition' => json_decode($this->nutrition, true), 
+            'nutrition' => $this->nutrition, 
             'prepare_time' => (string) $this->prepare_time, 
             'total_time' => (string) $this->total_time, 
             'cooking_time' => (int) $this->cooking_time, 
-            'servings' => json_decode($this->servings,true), 
-            'steps' => json_decode($this->steps, true),
+            'servings' => $this->servings,
+            'steps' =>  $this->steps,
             'cost' => (float) $this->cost, 
             'category'=>$this->category ? (new categoryResource($this->category)) : null,
             'cuisine'=>$this->cuisine ? (new cuisineResource($this->cuisine)) : null,
             'ingredients'=>$this->ingredients ? (ingredientResource::collection($this->ingredients)) : null,
+            'videoIds'=>$this->videoIds
         ];
     }
 }
